@@ -63,16 +63,26 @@ const Registration = () => {
     }
 
     await createUser(formatedData)
-      .then(() => message.success("user created successfully", 2))
-      .catch((err) => console.log(err))
+      .then(() => {
+        message.success("user created successfully", 2)
+        setTimeout(() => navigate("/login"), 2000)
+      })
+      .catch((err) =>
+        message.error(
+          `${
+            err?.response?.data?.message
+              ? err.response.data?.message
+              : "check if the server is running"
+          }`
+        )
+      )
       .finally(() => {
         setIsLoading(false)
-        navigate("/login")
       })
   }
 
   return (
-    <Layout
+    <Layout.Content
       style={{
         display: "flex",
         justifyContent: "center",
@@ -220,7 +230,7 @@ const Registration = () => {
           </Button>
         </FlexContainer>
       </StyledForm>
-    </Layout>
+    </Layout.Content>
   )
 }
 
