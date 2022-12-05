@@ -2,21 +2,21 @@ import { createContext, ReactNode, useContext, useState } from "react"
 
 import api from "../../api"
 
-interface CreateUserData {
+export interface CreateUserData {
   full_name: string
   password: string
   emails: string[]
   numbers: string[]
 }
-interface LoginUserData {
+export interface LoginUserData {
   full_name: string
   password: string
 }
-interface LoginResponse {
+export interface LoginResponse {
   token: string
   id: string
 }
-interface IUser {
+export interface IUser {
   id: string
   full_name: string
   created_at: Date
@@ -29,7 +29,7 @@ interface IUser {
     number: string
   }[]
 }
-interface UpdateUserData {
+export interface UpdateUserData {
   full_name?: string
   password?: string
   emails?: string[]
