@@ -62,23 +62,14 @@ const Registration = () => {
       numbers: [data.number]
     }
 
-    await createUser(formatedData)
-      .then(() => {
+    await createUser(formatedData).then((res) => {
+      if (res) {
         message.success("user created successfully", 2)
         setTimeout(() => navigate("/login"), 2000)
-      })
-      .catch((err) =>
-        message.error(
-          `${
-            err?.response?.data?.message
-              ? err.response.data?.message
-              : "check if the server is running"
-          }`
-        )
-      )
-      .finally(() => {
-        setIsLoading(false)
-      })
+      }
+    })
+
+    setIsLoading(false)
   }
 
   return (
