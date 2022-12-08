@@ -20,7 +20,7 @@ export interface LoginResponse {
 export interface IUser {
   id: string
   full_name: string
-  created_at: Date
+  created_at: string
   emails: {
     id: string
     email: string
@@ -38,18 +38,17 @@ export interface UpdateUserData {
 }
 
 interface UserContextProps {
-  createUser: (data: CreateUserData) => Promise<boolean>
-  login: (data: LoginUserData) => Promise<boolean>
+  createUser: (data: CreateUserData) => Promise<boolean | undefined>
+  login: (data: LoginUserData) => Promise<boolean | undefined>
   getLoginResponse: () =>
     | {
         token: string
         id: string
       }
     | undefined
-  getUserInfos: () => Promise<void>
-  updateUser: (data: UpdateUserData) => Promise<void>
-  deleteUser: () => Promise<void>
-  user: IUser | undefined
+  getUserInfos: () => Promise<any>
+  updateUser: (data: UpdateUserData) => Promise<any>
+  deleteUser: () => Promise<undefined>
 }
 interface UserProviderProps {
   children: ReactNode
@@ -58,18 +57,17 @@ interface UserProviderProps {
 const UserContext = createContext<UserContextProps>({} as UserContextProps)
 
 export const UserProvider = ({ children }: UserProviderProps) => {
-  const [user, setUser] = useState<IUser | undefined>(undefined)
-
   const displayErrors = (err: any) => {
     message.error(
       `${
         err?.response?.data?.message
           ? err.response.data?.message
           : "check if the server is running"
-      }`
+      }`,
+      2
     )
 
-    return false
+    return undefined
   }
 
   const createUser = async (data: CreateUserData) => {
@@ -104,46 +102,47 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const getUserInfos = async () => {
     const loginResponse = getLoginResponse()
 
-    loginResponse
+    return loginResponse
       ? await api
           .get(`/users/${loginResponse.id}`, {
             headers: { Authorization: `Bearer ${loginResponse.token}` }
           })
-          .then((res) => setUser(res.data))
+          .then((res) => res.data)
           .catch((err) => {
-            displayErrors(err)
-            setUser(undefined)
+            return displayErrors(err)
           })
-      : setUser(undefined)
+      : undefined
   }
 
   const updateUser = async (data: UpdateUserData) => {
     const loginResponse = getLoginResponse()
 
-    loginResponse
+    return loginResponse
       ? await api
           .patch(`/users/${loginResponse.id}`, data, {
             headers: { Authorization: `Bearer ${loginResponse.token}` }
           })
-          .then((res) => setUser(res.data))
-          .catch((err) => console.log(err))
-      : setUser(undefined)
+          .then((res) => res.data)
+          .catch((err) => {
+            console.log(err)
+            return undefined
+          })
+      : undefined
   }
 
   const deleteUser = async () => {
     const loginResponse = getLoginResponse()
 
-    loginResponse
-      ? await api
-          .delete(`/users/${loginResponse.id}`, {
-            headers: { Authorization: `Bearer ${loginResponse.token}` }
-          })
-          .then((res) => {
-            window.localStorage.clear()
-            setUser(undefined)
-          })
-          .catch((err) => console.log(err))
-      : setUser(undefined)
+    loginResponse &&
+      (await api
+        .delete(`/users/${loginResponse.id}`, {
+          headers: { Authorization: `Bearer ${loginResponse.token}` }
+        })
+        .then(() => {
+          window.localStorage.clear()
+        })
+        .catch((err) => console.log(err)))
+    return undefined
   }
 
   return (
@@ -154,8 +153,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         getLoginResponse,
         getUserInfos,
         updateUser,
-        deleteUser,
-        user
+        deleteUser
       }}
     >
       {children}

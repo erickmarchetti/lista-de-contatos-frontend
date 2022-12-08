@@ -12,6 +12,10 @@ const GlobalStyle = createGlobalStyle`
       width: 100vw;
       height: 100vh;
     }
+
+    /* .ant-modal-footer {
+      display: none;
+    } */
     
     /* button {
       cursor: pointer;
