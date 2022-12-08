@@ -6,7 +6,7 @@ export const StyledCard = styled.div`
 
   width: 100%;
   height: fit-content;
-  max-width: 350px;
+  max-width: 446.35px;
   max-height: 400px;
   margin-top: 20px;
   border-radius: 8px;
@@ -47,7 +47,6 @@ export const StyledCard = styled.div`
 export const FlexContainer = styled.div`
   width: 100%;
   display: flex;
-  justify-content: space-between;
   gap: 30px;
 
   .ant-list-items {
@@ -62,7 +61,6 @@ export const FlexContainer = styled.div`
 export const FlexContainerModal = styled.div`
   width: 100%;
   display: flex;
-  justify-content: space-between;
   gap: 30px;
   margin-bottom: 20px;
 
@@ -92,7 +90,7 @@ export const Modal = styled.div`
 
     width: 100%;
     height: fit-content;
-    max-width: 360px;
+    max-width: 464.5px;
     padding: 30px;
     border-radius: 8px;
     border: 1px solid #f0f0f0;
@@ -109,6 +107,14 @@ export const Modal = styled.div`
       display: flex;
       justify-content: center;
       align-items: center;
+    }
+    .ant-list-item {
+      cursor: pointer;
+      background-color: white;
+      transition: 0.2s;
+    }
+    .ant-list-item:hover {
+      filter: brightness(0.95);
     }
   }
 `

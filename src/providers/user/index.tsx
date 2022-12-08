@@ -48,7 +48,7 @@ interface UserContextProps {
     | undefined
   getUserInfos: () => Promise<any>
   updateUser: (data: UpdateUserData) => Promise<any>
-  deleteUser: () => Promise<undefined>
+  deleteUser: () => Promise<any>
 }
 interface UserProviderProps {
   children: ReactNode
@@ -123,26 +123,24 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             headers: { Authorization: `Bearer ${loginResponse.token}` }
           })
           .then((res) => res.data)
-          .catch((err) => {
-            console.log(err)
-            return undefined
-          })
+          .catch((err) => displayErrors(err))
       : undefined
   }
 
   const deleteUser = async () => {
     const loginResponse = getLoginResponse()
 
-    loginResponse &&
-      (await api
-        .delete(`/users/${loginResponse.id}`, {
-          headers: { Authorization: `Bearer ${loginResponse.token}` }
-        })
-        .then(() => {
-          window.localStorage.clear()
-        })
-        .catch((err) => console.log(err)))
-    return undefined
+    return loginResponse
+      ? await api
+          .delete(`/users/${loginResponse.id}`, {
+            headers: { Authorization: `Bearer ${loginResponse.token}` }
+          })
+          .then(() => {
+            window.localStorage.clear()
+            return true
+          })
+          .catch((err) => displayErrors(err))
+      : undefined
   }
 
   return (

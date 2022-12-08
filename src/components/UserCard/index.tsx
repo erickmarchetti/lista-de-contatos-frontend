@@ -1,46 +1,82 @@
 import { StyledCard, FlexContainer, FlexContainerModal, Modal } from "./style"
-import { Typography, List, Button, Form, Input, Space } from "antd"
+import { Typography, List, Button, Form, Input, Space, message } from "antd"
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons"
-import { IUser } from "../../providers/user"
+import UseUserContext, { IUser } from "../../providers/user"
 
-import { useForm, Controller } from "react-hook-form"
-import { yupResolver } from "@hookform/resolvers/yup"
-import * as yup from "yup"
 import { useState } from "react"
+import { v4 as uuid } from "uuid"
+import { useNavigate } from "react-router-dom"
 
-// interface UpdateUserFormFields {
-//   full_name: string
-//   password: string
-//   email: string
-//   number: string
-// }
-
-// const updateUserSchema = yup.object({
-//   full_name: yup.string().max(50).required(),
-//   password: yup.string().required(),
-//   email: yup.string().max(40).email().required(),
-//   number: yup
-//     .string()
-//     .min(9)
-//     .max(13)
-//     .matches(/^[0-9]+$/, "This field must have only numbers")
-//     .required()
-// })
-
-const UserCard = ({ user }: { user: IUser }) => {
+const UserCard = ({
+  user,
+  setUser,
+  setIsLoading
+}: {
+  user: IUser
+  setUser: React.Dispatch<React.SetStateAction<IUser | undefined>>
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+}) => {
   const [open, setOpen] = useState<boolean>(false)
+  const [userForUpdate, setUserForUpdate] = useState<IUser>({ ...user })
+  const { updateUser, deleteUser } = UseUserContext()
+  const navigate = useNavigate()
 
-  // const {
-  //   control,
-  //   handleSubmit,
-  //   formState: { errors }
-  // } = useForm<UpdateUserFormFields>({
-  //   mode: "onSubmit",
-  //   reValidateMode: "onChange",
-  //   shouldFocusError: false,
-  //   shouldUnregister: false,
-  //   resolver: yupResolver(updateUserSchema)
-  // })
+  const addName = (data: { full_name: string }) => {
+    data.full_name &&
+      setUserForUpdate({
+        ...userForUpdate,
+        full_name: data.full_name
+      })
+  }
+
+  const addEmail = (data: { email: string }) => {
+    data.email &&
+      setUserForUpdate({
+        ...userForUpdate,
+        emails: [{ id: uuid(), email: data.email }, ...userForUpdate.emails]
+      })
+  }
+
+  const addNumber = (data: { number: string }) => {
+    data.number &&
+      setUserForUpdate({
+        ...userForUpdate,
+        numbers: [{ id: uuid(), number: data.number }, ...userForUpdate.numbers]
+      })
+  }
+
+  const deleteFromList = (
+    list: { id: string; email: string }[] | { id: string; number: string }[],
+    index: number
+  ) => {
+    list.splice(index, 1)
+    setUserForUpdate({ ...userForUpdate })
+  }
+
+  const sendUpdate = () => {
+    const emails = userForUpdate.emails.map((item) => item.email)
+    const numbers = userForUpdate.numbers.map((item) => item.number)
+    const formatedUser = { ...userForUpdate, emails, numbers }
+    updateUser(formatedUser).then((res) => {
+      setUser(res)
+      res && message.success("User updated!", 2)
+    })
+  }
+
+  const sendDelete = () => {
+    setOpen(false)
+    setIsLoading(true)
+    deleteUser().then((res) => {
+      setUser(undefined)
+      setIsLoading(false)
+      if (res) {
+        message.success("User has been deleted", 2)
+        setTimeout(() => {
+          navigate("/login")
+        }, 2000)
+      }
+    })
+  }
 
   return (
     <>
@@ -98,7 +134,11 @@ const UserCard = ({ user }: { user: IUser }) => {
               <CloseOutlined />
             </Button>
 
-            <Form onFinish={(data) => console.log(data)}>
+            <Typography.Paragraph strong>
+              Current name: {userForUpdate.full_name}
+            </Typography.Paragraph>
+
+            <Form onFinish={(data) => addName(data)}>
               <Form.Item
                 name="full_name"
                 rules={[
@@ -111,8 +151,27 @@ const UserCard = ({ user }: { user: IUser }) => {
                   marginBottom: "10px"
                 }}
               >
-                <Input placeholder="Enter your new name" />
+                <Input
+                  placeholder="Enter your new name"
+                  addonAfter={
+                    <Button
+                      htmlType="submit"
+                      style={{
+                        width: "fit-content",
+                        height: "fit-content",
+                        border: 0,
+                        padding: 0,
+                        backgroundColor: "transparent"
+                      }}
+                    >
+                      <PlusOutlined />
+                    </Button>
+                  }
+                />
               </Form.Item>
+            </Form>
+
+            <Form onFinish={(data) => addEmail(data)}>
               <Form.Item
                 name="email"
                 rules={[
@@ -131,9 +190,25 @@ const UserCard = ({ user }: { user: IUser }) => {
               >
                 <Input
                   placeholder="Enter your new email"
-                  addonAfter={<PlusOutlined />}
+                  addonAfter={
+                    <Button
+                      htmlType="submit"
+                      style={{
+                        width: "fit-content",
+                        height: "fit-content",
+                        border: 0,
+                        padding: 0,
+                        backgroundColor: "transparent"
+                      }}
+                    >
+                      <PlusOutlined />
+                    </Button>
+                  }
                 />
               </Form.Item>
+            </Form>
+
+            <Form onFinish={(data) => addNumber(data)}>
               <Form.Item
                 name="number"
                 rules={[
@@ -172,52 +247,71 @@ const UserCard = ({ user }: { user: IUser }) => {
                   }
                 />
               </Form.Item>
-
-              <FlexContainerModal>
-                <List
-                  size="small"
-                  header={"Emails"}
-                  dataSource={user.emails}
-                  itemLayout="horizontal"
-                  bordered
-                  renderItem={(item) => <List.Item>{item.email}</List.Item>}
-                  style={{
-                    height: "fit-content"
-                  }}
-                />
-                <List
-                  size="small"
-                  header={"Numbers"}
-                  dataSource={user.numbers}
-                  itemLayout="horizontal"
-                  bordered
-                  renderItem={(item) => <List.Item>{item.number}</List.Item>}
-                  style={{
-                    height: "fit-content"
-                  }}
-                />
-              </FlexContainerModal>
-
-              <Space direction="horizontal" size="small">
-                <Button
-                  htmlType="submit"
-                  style={{
-                    width: "fit-content"
-                  }}
-                >
-                  Save
-                </Button>
-
-                <Button
-                  onClick={() => setOpen(false)}
-                  style={{
-                    width: "fit-content"
-                  }}
-                >
-                  Delete
-                </Button>
-              </Space>
             </Form>
+
+            <FlexContainerModal>
+              <List
+                size="small"
+                header={"Emails"}
+                dataSource={userForUpdate.emails}
+                itemLayout="horizontal"
+                bordered
+                renderItem={(item, index) => (
+                  <List.Item
+                    onClick={() => deleteFromList(userForUpdate.emails, index)}
+                  >
+                    {item.email}
+                  </List.Item>
+                )}
+                style={{
+                  height: "fit-content",
+                  maxWidth: "253px",
+                  overflow: "hidden"
+                }}
+              />
+              <List
+                size="small"
+                header={"Numbers"}
+                dataSource={userForUpdate.numbers}
+                itemLayout="horizontal"
+                bordered
+                renderItem={(item, index) => (
+                  <List.Item
+                    onClick={() => deleteFromList(userForUpdate.numbers, index)}
+                  >
+                    {item.number}
+                  </List.Item>
+                )}
+                style={{
+                  height: "fit-content",
+                  overflow: "hidden"
+                }}
+              />
+            </FlexContainerModal>
+
+            <Space direction="horizontal" size="small">
+              <Button
+                onClick={() => {
+                  sendUpdate()
+                  setOpen(false)
+                }}
+                htmlType="submit"
+                style={{
+                  width: "fit-content"
+                }}
+              >
+                Save
+              </Button>
+
+              <Button
+                onClick={() => sendDelete()}
+                style={{
+                  width: "fit-content"
+                }}
+              >
+                Delete
+              </Button>
+            </Space>
           </div>
         </Modal>
       )}

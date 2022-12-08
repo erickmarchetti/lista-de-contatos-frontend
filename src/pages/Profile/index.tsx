@@ -53,7 +53,7 @@ const Profile = () => {
           }
         />
       ) : user ? (
-        <UserCard user={user} />
+        <UserCard user={user} setUser={setUser} setIsLoading={setIsLoading} />
       ) : (
         <Layout
           style={{
