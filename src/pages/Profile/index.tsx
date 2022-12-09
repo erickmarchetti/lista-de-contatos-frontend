@@ -6,20 +6,28 @@ import { useEffect, useState } from "react"
 
 import { useNavigate } from "react-router-dom"
 import UserCard from "../../components/UserCard"
-import UseContactContext, { CreateContactData } from "../../providers/contact"
+import UseContactContext, {
+  CreateContactData,
+  IContact
+} from "../../providers/contact"
 import Modal from "../../components/Modal"
+import ContactList from "../../components/ContactList"
+
+const initialNewContact = {
+  full_name: "new contact",
+  emails: [],
+  numbers: []
+}
 
 const Profile = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [contactModal, setContactModal] = useState<boolean>(false)
   const [user, setUser] = useState<IUser | undefined>(undefined)
-  const [newContact, setNewContact] = useState<CreateContactData>({
-    full_name: "new contact",
-    emails: [],
-    numbers: []
-  })
+  const [contactList, setContactList] = useState<IContact[]>([])
+  const [newContact, setNewContact] =
+    useState<CreateContactData>(initialNewContact)
   const { getUserInfos } = UseUserContext()
-  const { createContact } = UseContactContext()
+  const { createContact, getAllContacts } = UseContactContext()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -28,6 +36,13 @@ const Profile = () => {
       setUser(res)
       setIsLoading(false)
     })
+    getAllContacts().then((res) => {
+      if (res) {
+        setContactList(res)
+      } else {
+        setUser(undefined)
+      }
+    })
   }, [])
 
   const sendCreateContact = () => {
@@ -35,6 +50,8 @@ const Profile = () => {
       setContactModal(false)
       if (res) {
         message.success("Contact created!")
+        getAllContacts().then((res) => setContactList(res))
+        setNewContact(initialNewContact)
       } else {
         setUser(undefined)
       }
@@ -92,6 +109,11 @@ const Profile = () => {
                 </Button>
               </Space>
             }
+          />
+          <ContactList
+            setUser={setUser}
+            contactList={contactList}
+            setContactList={setContactList}
           />
         </>
       ) : (
