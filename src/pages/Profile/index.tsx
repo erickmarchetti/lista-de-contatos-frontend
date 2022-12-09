@@ -103,7 +103,9 @@ const Profile = () => {
           )}
           <Divider
             children={
-              <Space direction="vertical" size="middle">
+              <Space direction="horizontal" size="middle">
+                <Button onClick={() => navigate("/login")}>Login</Button>
+
                 <Button onClick={() => setContactModal(true)}>
                   New Contact
                 </Button>

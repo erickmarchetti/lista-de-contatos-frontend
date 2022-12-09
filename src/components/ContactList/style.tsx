@@ -3,7 +3,7 @@ import styled from "styled-components"
 export const StyledContactList = styled.ul`
   width: 100%;
   height: fit-content;
-  padding: 0;
+  padding: 0 20px 0 20px;
   list-style: none;
   overflow-x: scroll;
 
