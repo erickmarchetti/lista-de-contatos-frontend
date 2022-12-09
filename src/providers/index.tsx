@@ -1,4 +1,5 @@
 import { UserProvider } from "./user"
+import { ContactProvider } from "./contact"
 import { ReactNode } from "react"
 
 interface ProviderProps {
@@ -6,7 +7,9 @@ interface ProviderProps {
 }
 
 const Provider = ({ children }: ProviderProps) => (
-  <UserProvider>{children}</UserProvider>
+  <UserProvider>
+    <ContactProvider>{children}</ContactProvider>
+  </UserProvider>
 )
 
 export default Provider
