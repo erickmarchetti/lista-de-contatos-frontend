@@ -228,10 +228,7 @@ const Modal = ({
 
         <Space direction="horizontal" size="small">
           <Button
-            onClick={() => {
-              onSave()
-              setOpen(false)
-            }}
+            onClick={() => onSave()}
             htmlType="submit"
             style={{
               width: "fit-content"
