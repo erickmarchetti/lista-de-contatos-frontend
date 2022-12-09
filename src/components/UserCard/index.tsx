@@ -1,5 +1,5 @@
 import { StyledCard, FlexContainer } from "./style"
-import { Typography, List, Button, message } from "antd"
+import { Typography, List, message } from "antd"
 import UseUserContext, { IUser } from "../../providers/user"
 import Modal from "../Modal"
 
@@ -22,7 +22,6 @@ const UserCard = ({
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
   const [userModal, setUserModal] = useState<boolean>(false)
-  const [contactModal, setContactModal] = useState<boolean>(false)
   const [userForUpdate, setUserForUpdate] = useState<UserForUpdate>({
     full_name: user.full_name,
     emails: user.emails.map((item) => item.email),

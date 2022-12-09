@@ -1,4 +1,4 @@
-import { Layout, Button, Typography, Spin } from "antd"
+import { Layout, Button, Typography, Spin, Divider, Space, message } from "antd"
 import { SyncOutlined } from "@ant-design/icons"
 
 import UseUserContext, { IUser } from "../../providers/user"
@@ -6,11 +6,20 @@ import { useEffect, useState } from "react"
 
 import { useNavigate } from "react-router-dom"
 import UserCard from "../../components/UserCard"
+import UseContactContext, { CreateContactData } from "../../providers/contact"
+import Modal from "../../components/Modal"
 
 const Profile = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [contactModal, setContactModal] = useState<boolean>(false)
   const [user, setUser] = useState<IUser | undefined>(undefined)
+  const [newContact, setNewContact] = useState<CreateContactData>({
+    full_name: "new contact",
+    emails: [],
+    numbers: []
+  })
   const { getUserInfos } = UseUserContext()
+  const { createContact } = UseContactContext()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -20,6 +29,17 @@ const Profile = () => {
       setIsLoading(false)
     })
   }, [])
+
+  const sendCreateContact = () => {
+    createContact(newContact).then((res) => {
+      setContactModal(false)
+      if (res) {
+        message.success("Contact created!")
+      } else {
+        setUser(undefined)
+      }
+    })
+  }
 
   return (
     <Layout.Content
@@ -36,7 +56,8 @@ const Profile = () => {
               width: "100%",
               height: "100%",
               display: "flex",
-              justifyContent: "center"
+              flexFlow: "column nowrap",
+              alignItems: "center"
             }
       }
     >
@@ -53,7 +74,26 @@ const Profile = () => {
           }
         />
       ) : user ? (
-        <UserCard user={user} setUser={setUser} setIsLoading={setIsLoading} />
+        <>
+          <UserCard user={user} setUser={setUser} setIsLoading={setIsLoading} />
+          {contactModal && (
+            <Modal
+              mainObject={newContact}
+              setMainObject={setNewContact}
+              setOpen={setContactModal}
+              onSave={sendCreateContact}
+            />
+          )}
+          <Divider
+            children={
+              <Space direction="vertical" size="middle">
+                <Button onClick={() => setContactModal(true)}>
+                  New Contact
+                </Button>
+              </Space>
+            }
+          />
+        </>
       ) : (
         <Layout
           style={{
