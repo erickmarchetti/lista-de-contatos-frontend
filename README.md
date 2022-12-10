@@ -37,4 +37,4 @@ yarn start
 
 ## 3. Backend
 
-Para que a aplicação funcione corretamente confira como clonar e inicializar o backend, clique <a href="https://github.com/erickmarchetti/lista-de-contatos-frontend" target="_blank">aqui</a>
+Para que a aplicação funcione corretamente confira como clonar e inicializar o backend, clique <a href="https://github.com/erickmarchetti/lista-de-contatos-backend" target="_blank">aqui</a>
